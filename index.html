@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Ticket Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+        }
+
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #343a40;
+            border-bottom: 2px solid #17a2b8;
+            padding-bottom: 5px;
+        }
+
+        .matches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .card.selected {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .team-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus, button:focus {
+            outline: none;
+            border-color: #17a2b8;
+            box-shadow: 0 0 5px rgba(23, 162, 184, 0.5);
+        }
+
+        button {
+            background-color: #17a2b8;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #138496;
+        }
+
+        .success-message {
+            color: green;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 20px;
+        }
+
+        #ticketPreview {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #ticketPreview h3 {
+            color: #343a40;
+            margin-top: 0;
+        }
+
+        #ticketPreview .league-logo {
+            width: 50px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Football Ticket Booking</h1>
+    </header>
+
+    <div class="container">
+        <h2>Available Matches</h2>
+        <div class="matches">
+            <div class="card" onclick="selectMatch(this, 'Koryom FC Bor VS Jamus FC Juba')">
+                <h3>
+                    <img src="koryom_fc_logo.jpg" alt="Koryom FC Logo" class="team-logo"> Koryom FC Bor
+                    <span>VS</span>
+                    <img src="jamus_fc_logo.jpg" alt="Jamus FC Logo" class="team-logo"> Jamus FC Juba
+                </h3>
+                <p><strong>Date:</strong> 10/01/2025</p>
+                <p><strong>Time:</strong> 3:00 PM</p>
+                <p><strong>Venue:</strong> Juba National Stadium</p>
+            </div>
+        </div>
+
+        <h2>Book Your Ticket</h2>
+        <form id="bookingForm">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+
+            <label for="ticketType">Select Ticket Type:</label>
+            <select id="ticketType" name="ticketType" required>
+                <option value="">-- Select Ticket Type --</option>
+                <option value="VIP">VIP (15,000 SSP)</option>
+                <option value="First Class">First Class (10,000 SSP)</option>
+                <option value="Second Class">Second Class (5,000 SSP)</option>
+                <option value="Third Class">Third Class (2,000 SSP)</option>
+            </select>
+
+            <label for="quantity">Number of Tickets:</label>
+            <input type="number" id="quantity" name="quantity" min="1" max="10" placeholder="Enter ticket quantity" required>
+
+            <input type="hidden" id="match" name="match" required>
+
+            <button type="submit">Book Now</button>
+        </form>
+
+        <div id="responseMessage" class="success-message" style="display: none;"></div>
+
+        <div id="ticketPreview">
+            <img src="league_logo.jpg" alt="League Logo" class="league-logo">
+            <h3>South Sudan Premier League</h3>
+            <p style="font-size: 12px; margin: 5px 0;"><strong>Match:</strong> <span id="previewMatch"></span></p>
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <img src="koryom_fc_logo.jpg" alt="Koryom FC Logo" style="width: 30px; height: 30px;">
+                <span style="margin: 0 10px; font-size: 12px;">VS</span>
+                <img src="jamus_fc_logo.jpg" alt="Jamus FC Logo" style="width: 30px; height: 30px;">
+            </div>
+            <p style="font-size: 12px; margin: 5px 0;"><strong>Date:</strong> 10/01/2025</p>
+            <p style="font-size: 12px; margin: 5px 0;"><strong>Time:</strong> 3:00 PM</p>
+            <p style="font-size: 12px; margin: 5px 0;"><strong>Venue:</strong> Juba National Stadium</p>
+            <p style="font-size: 12px; margin: 5px 0;"><strong>Ticket Type:</strong> <span id="previewTicketType"></span></p>
+            <p style="font-size: 12px; margin: 5px 0;"><strong>Quantity:</strong> <span id="previewQuantity"></span></p>
+            <canvas id="qrcode"></canvas>
+            <button style="margin-top: 10px;" onclick="downloadPDF()">Download Ticket</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        function selectMatch(element, matchName) {
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('match').value = matchName;
+        }
+
+        function generateQRCode(data) {
+            const canvas = document.getElementById('qrcode');
+            QRCode.toCanvas(canvas, data, function (error) {
+                if (error) console.error(error);
+            });
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+            const match = document.getElementById('previewMatch').textContent;
+            const ticketType = document.getElementById('previewTicketType').textContent;
+            const quantity = document.getElementById('previewQuantity').textContent;
+
+            // Add watermark
+            pdf.setFontSize(30);
+            pdf.setTextColor(200, 200, 200);
+            pdf.text("South Sudan Football Association", 105, 105, { align: "center", angle: 45 });
+
+            pdf.setFontSize(16);
+            pdf.setTextColor(0, 0, 0);
+            pdf.text("South Sudan Premier League", 105, 20, { align: "center" });
+
+            pdf.addImage("league_logo.jpg", "JPEG", 90, 25, 25, 25);
+
+            pdf.setFontSize(10);
+            pdf.text(`Match: ${match}`, 20, 70);
+            pdf.text("Date: 10/01/2025", 20, 80);
+            pdf.text("Time: 3:00 PM", 20, 90);
+            pdf.text("Venue: Juba National Stadium", 20, 100);
+            pdf.text(`Ticket Type: ${ticketType}`, 20, 110);
+            pdf.text(`Quantity: ${quantity}`, 20, 120);
+
+            pdf.addImage("koryom_fc_logo.jpg", "JPEG", 20, 130, 20, 20);
+            pdf.text("VS", 105, 140, { align: "center" });
+            pdf.addImage("jamus_fc_logo.jpg", "JPEG", 160, 130, 20, 20);
+
+            const canvas = document.getElementById('qrcode');
+            const imgData = canvas.toDataURL("image/png");
+            pdf.addImage(imgData, "PNG", 90, 150, 25, 25);
+
+            pdf.setFontSize(8);
+            pdf.text("Security Code: X1A2B3C4D5", 105, 180, { align: "center" });
+            pdf.text("This ticket is non-transferable and valid for one-time entry.", 105, 190, { align: "center" });
+
+            pdf.save(`${match}.pdf`);
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const match = document.getElementById('match').value;
+            const ticketType = document.getElementById('ticketType').value;
+            const quantity = document.getElementById('quantity').value;
+
+            if (!name || !email || !match || !ticketType || !quantity) {
+                document.getElementById('responseMessage').textContent = 'Please fill out all fields.';
+                document.getElementById('responseMessage').className = 'error-message';
+                document.getElementById('responseMessage').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('previewMatch').textContent = match;
+            document.getElementById('previewTicketType').textContent = ticketType;
+            document.getElementById('previewQuantity').textContent = quantity;
+
+            const qrData = `Match: ${match}, Date: 10/01/2025, Time: 3:00 PM, Venue: Juba National Stadium, Ticket Type: ${ticketType}, Quantity: ${quantity}`;
+            generateQRCode(qrData);
+
+            document.getElementById('ticketPreview').style.display = 'block';
+
+            document.getElementById('responseMessage').textContent = '';
+            document.getElementById('responseMessage').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
